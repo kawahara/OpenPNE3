@@ -105,7 +105,7 @@ class opMailSend
     }
   }
 
-  public static function sendTemplateMailToMember($template, Member $member, $from, $params = array(), $context = null)
+  public static function sendTemplateMailToMember($template, Member $member, $from = null, $params = array(), $context = null)
   {
     $nowCulture = sfDoctrineRecord::getDefaultCulture();
     $memberCulture = $member->getConfig('language', sfConfig::get('sf_default_culture'));
@@ -126,11 +126,16 @@ class opMailSend
     sfDoctrineRecord::setDefaultCulture($nowCulture);
   }
 
-  public static function sendTemplateMail($template, $to, $from, $params = array(), $context = null)
+  public static function sendTemplateMail($template, $to, $from = null, $params = array(), $context = null)
   {
     if (!$to)
     {
       return false;
+    }
+
+    if (null === $from)
+    {
+      $from = opConfig::get('admin_mail_address');
     }
 
     if (empty($params['target']))

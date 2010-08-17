@@ -182,6 +182,21 @@ class opMailSend
       return false;
     }
 
+    if (sfContext::hasInstance())
+    {
+      $event = new sfEvent(null, 'op_mail_send.pre_execute', array(
+        'subject' => $subject,
+        'to'      => $to,
+        'from'    => $from,
+        'body'    => $body
+      ));
+      sfContext::getInstance()->getEventDispatcher()->notify($event);
+      if (false === $event->getReturnValue())
+      {
+        return false;
+      }
+    }
+
     self::initialize();
 
     opApplicationConfiguration::registerZend();
@@ -203,6 +218,18 @@ class opMailSend
     $result = $mailer->send();
 
     Zend_Loader::registerAutoLoad('Zend_Loader', false);
+
+    if (sfContext::hasInstance())
+    {
+      $event = new sfEvent(null, 'op_mail_send.post_execute', array(
+        'subject' => $subject,
+        'to'      => $to,
+        'from'    => $from,
+        'body'    => $body,
+        'result'  => $result,
+      ));
+      sfContext::getInstance()->getEventDispatcher()->notify($event);
+    }
 
     return $result;
   }

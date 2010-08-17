@@ -55,7 +55,7 @@ class opLanguageSelecterForm extends BaseForm
 
     if ($this->user->getMemberId())
     {
-      $this->user->getMember()->setConfig('language', $this->getValue('culture'));
+      $this->user->getMember(true)->setConfig('language', $this->getValue('culture'));
     }
   }
 

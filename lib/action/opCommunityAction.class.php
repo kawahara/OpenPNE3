@@ -423,7 +423,7 @@ abstract class opCommunityAction extends sfActions
         'community'  => $community,
         'new_member' => $member,
       );
-      opMailSend::sendTemplateMail('joinCommunity', $community->getAdminMember()->getEmailAddress(), opConfig::get('admin_mail_address'), $params);
+      opMailSend::sendTemplateMailToMember('joinCommunity', $community->getAdminMember(), opConfig::get('admin_mail_address'), $params);
     }
   }
 }

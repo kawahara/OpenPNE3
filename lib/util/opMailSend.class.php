@@ -105,6 +105,27 @@ class opMailSend
     }
   }
 
+  public static function sendTemplateMailToMember($template, Member $member, $from, $params = array(), $context = null)
+  {
+    $nowCulture = sfDoctrineRecord::getDefaultCulture();
+    $memberCulture = $member->getConfig('language', sfConfig::get('sf_default_culture'));
+    sfDoctrineRecord::setDefaultCulture($memberCulture);
+
+    $pcMailAddress = $member->getConfig('pc_address');
+    if ($pcMailAddress)
+    {
+      self::sendTemplateMail($template, $pcMailAddress, $from, $params, $context);
+    }
+
+    $mobileMailAddress = $member->getConfig('mobile_address');
+    if ($mobileMailAddress)
+    {
+      self::sendTemplateMail($template, $mobileMailAddress, $from, $params, $context);
+    }
+
+    sfDoctrineRecord::setDefaultCulture($nowCulture);
+  }
+
   public static function sendTemplateMail($template, $to, $from, $params = array(), $context = null)
   {
     if (!$to)

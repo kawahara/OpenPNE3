@@ -18,9 +18,12 @@
  */
 class opSecurityUser extends opAdaptableUser
 {
+  const TIMEZONE_NAMESPACE = 'openpne/user/opSecurityUser/timezone';
+
   protected
     $authAdapters = array(),
-    $serializedMember = '';
+    $serializedMember = '',
+    $timezone = null;
 
   /**
    * Initializes the current user.
@@ -37,7 +40,37 @@ class opSecurityUser extends opAdaptableUser
 
     parent::initialize($dispatcher, $storage, $options);
 
+    if (!isset($this->options['timezone']))
+    {
+      $this->options['timezone'] = null;
+    }
+    if (!isset($this->options['default_timezone']))
+    {
+      $this->options['default_timezone'] = sfConfig::get('op_default_timezone', date_default_timezone_get());
+    }
+
+    $currentTimezone = $storage->read(self::TIMEZONE_NAMESPACE);
+    $this->setTimezone(null !== $this->options['timezone'] ? $this->options['timezone'] : (null !== $currentTimezone ? $currentTimezone : $this->options['default_timezone']));
+
     $this->initializeCredentials();
+  }
+
+  public function shutdown()
+  {
+    parent::shutdown();
+
+    $this->storage->write(self::TIMEZONE_NAMESPACE, $this->timezone);
+  }
+
+  public function setTimezone($timezone)
+  {
+    if ($this->timezone != $timezone)
+    {
+      $this->timezone = $timezone;
+      date_default_timezone_set($timezone);
+
+      $this->dispatcher->notify(new sfEvent($this, 'user.change_timezone', array('timezone' => $timezone)));
+    }
   }
 
   public function getMemberId()
@@ -252,6 +285,7 @@ class opSecurityUser extends opAdaptableUser
       }
 
       $this->setCulture($this->getMember()->getConfig('language', sfConfig::get('sf_default_culture')));
+      $this->setTimezone($this->getMember()->getConfig('time_zone', sfConfig::get('op_default_timezone')));
 
       return $uri;
     }

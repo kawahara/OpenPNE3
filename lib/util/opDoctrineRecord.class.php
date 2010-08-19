@@ -78,12 +78,30 @@ abstract class opDoctrineRecord extends sfDoctrineRecord implements Zend_Acl_Res
     return 'datetime' === $definition['type'];
   }
 
+  protected function checkIsDatetimeOrTimestamp($fieldName)
+  {
+    $definition = $this->_table->getColumnDefinition($fieldName);
+
+    return ('datetime' === $definition['type'] || 'timestamp' === $definition['type']);
+  }
+
   protected function _set($fieldName, $value, $load = true)
   {
     // In setter, empty value must be handled as opDoctrineRecord::UNDEFINED_DATETIME
     if ($this->checkIsDatetimeField($fieldName) && empty($value))
     {
       $value = self::UNDEFINED_DATETIME;
+    }
+    elseif ($this->checkIsDatetimeOrTimestamp($fieldName) && $time = strtotime($value))
+    {
+      $timezone        = date_default_timezone_get();
+      $defaultTimezone = sfConfig::get('op_default_timezone', 'Asia/Tokyo');
+      if ($timezone !== $defaultTimezone)
+      {
+        date_default_timezone_set($defaultTimezone);
+        $value = date('Y-m-d H:i:s', $time);
+        date_default_timezone_set($timezone);
+      }
     }
 
     return parent::_set($fieldName, $value, $load);
@@ -117,7 +135,20 @@ abstract class opDoctrineRecord extends sfDoctrineRecord implements Zend_Acl_Res
     // In getter, opDoctrineRecord::UNDEFINED_DATETIME must be handled as null
     if ($this->checkIsDatetimeField($fieldName) && in_array($value, array(self::UNDEFINED_DATETIME, self::UNDEFINED_DATETIME_BC), true))
     {
-      $value = null;
+
+      return null;
+    }
+    elseif ($this->checkIsDatetimeOrTimestamp($fieldName) && $value)
+    {
+      $timezone        = date_default_timezone_get();
+      $defaultTimezone = sfConfig::get('op_default_timezone', 'Asia/Tokyo');
+      if ($timezone !== $defaultTimezone)
+      {
+        date_default_timezone_set($defaultTimezone);
+        $time = strtotime($value);
+        date_default_timezone_set($timezone);
+        $value = date('Y-m-d H:i:s', $time);
+      }
     }
 
     return $value;

@@ -199,6 +199,9 @@ http_proxy: ""
 # 対応言語
 supported_languages: ['en', 'ja_JP']
 
+# デフォルトの言語
+default_language: "ja_JP"
+
 # デフォルトタイムゾーン
 default_timezone: "Asia/Tokyo"
 

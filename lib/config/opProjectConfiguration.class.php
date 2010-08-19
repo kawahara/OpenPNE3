@@ -42,6 +42,11 @@ class opProjectConfiguration extends sfProjectConfiguration
 
     $this->setOpenPNEConfiguration();
 
+    if ($language = sfConfig::get('op_default_language'))
+    {
+      sfConfig::set('sf_default_culture', $language);
+    }
+
     sfConfig::set('doctrine_model_builder_options', array(
       'baseClassName' => 'opDoctrineRecord',
     ));

@@ -25,10 +25,18 @@ class MemberConfigLanguageForm extends MemberConfigForm
     {
       sfContext::getInstance()->getUser()->setCulture($language);
     }
+    else
+    {
+      sfContext::getInstance()->getUser()->setCulture(sfConfig::get('sf_default_culture'));
+    }
 
     if ($timezone = $this->getValue('time_zone'))
     {
       sfContext::getInstance()->getUser()->setTimezone($timezone);
+    }
+    else
+    {
+      sfContext::getInstance()->getUser()->setTimezone(sfConfig::get('op_default_timezone', date_default_timezone_get()));
     }
 
     return parent::save();

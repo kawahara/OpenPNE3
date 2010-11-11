@@ -8,6 +8,8 @@
  * file and the NOTICE file that were distributed with this source code.
  */
 
+require_once sfConfig::get('sf_plugins_dir').'/sfSmartphoneViewPlugin/lib/config/sfSmartphoneViewConfigHandler.class.php';
+
 /**
  * opViewConfigHandler allows you to configure views for OpenPNE.
  *
@@ -15,7 +17,7 @@
  * @subpackage config
  * @author     Kousuke Ebihara <ebihara@php.net>
  */
-class opViewConfigHandler extends sfViewConfigHandler
+class opViewConfigHandler extends sfSmartphoneViewConfigHandler
 {
   public function execute($configFiles)
   {

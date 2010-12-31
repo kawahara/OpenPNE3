@@ -58,7 +58,11 @@ if ($widget instanceof opWidgetFormProfile)
 
 if ($widget instanceof sfWidgetFormInput)
 {
-  $attributes = array('class' => sprintf('input_%s', $widget->getOption('type')));
+  $attributes = array('class' => sprintf('input_%s', $widget->getOption('type')), 'size' => 40);
+}
+elseif ($widget instanceof sfWidgetFormTextarea)
+{
+  $attributes = array('cols' => 50, 'rows' => 10);
 }
 elseif ($widget instanceof sfWidgetFormFilterInput)
 {
@@ -85,7 +89,7 @@ elseif ($widget instanceof sfWidgetFormSelectCheckbox)
   $attributes = array('class' => 'input_checkbox');
 }
 
-if ($options['mark_required_field'] 
+if ($options['mark_required_field']
   && !($validator instanceof sfValidatorPass)
   && !($validator instanceof sfValidatorSchema)
   && $validator->getOption('required'))
@@ -93,6 +97,7 @@ if ($options['mark_required_field']
   $labelSuffix = ' <strong>*</strong>';
   $hasRequiredField = true;
 }
+
 ?>
 <?php echo $field->renderRow($attributes, $field->renderLabelName().$labelSuffix) ?>
 <?php endforeach; ?>

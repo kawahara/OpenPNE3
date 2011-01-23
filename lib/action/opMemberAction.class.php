@@ -436,25 +436,25 @@ abstract class opMemberAction extends sfActions
       }
     }
 
-    if (isset($categories['mail']))
+    if (isset($categories['mail']) &&
+      !Doctrine::getTable('NotificationMail')->isEnabledMemberConfig() &&
+      !count($categories['mail'])
+    )
     {
-      if (sfConfig::get('sf_app') == 'pc_frontend')
-      {
-        $dailyNewsNotification = Doctrine::getTable('NotificationMail')->findOneByName('pc_dailyNews');
-      }
-      elseif (sfConfig::get('sf_app') == 'mobile_frontend')
-      {
-        $dailyNewsNotification = Doctrine::getTable('NotificationMail')->findOneByName('mobile_dailyNews');
-      }
-      if ($dailyNewsNotification && !$dailyNewsNotification->is_enabled)
-      {
-        unset($categories['mail']);
-      }
+      unset($categories['mail']);
     }
 
     foreach ($categories as $key => $value)
     {
       $title = $key;
+
+      if (
+        !(isset($categoryAttributes[$key]['is_check_item']) && !$categoryAttributes[$key]['is_check_item']) &&
+        !count($value)
+      )
+      {
+        unset($categories[$key]);
+      }
 
       if (isset($categoryAttributes[$key]['depending_sns_config']))
       {

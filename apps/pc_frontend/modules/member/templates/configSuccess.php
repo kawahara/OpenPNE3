@@ -3,10 +3,7 @@
 $list = array();
 foreach ($categories as $key => $value)
 {
-  if (count($value))
-  {
-    $list[$key] = link_to(__($categoryCaptions[$key]), '@member_config?category='.$key);
-  }
+  $list[$key] = link_to(__($categoryCaptions[$key]), '@member_config?category='.$key);
 }
 op_include_parts('pageNav', 'pageNav', array('list' => $list, 'current' => $categoryName));
 ?>

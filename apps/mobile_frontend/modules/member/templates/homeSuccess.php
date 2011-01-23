@@ -73,10 +73,7 @@ op_include_list('profileEdit', $list, array('title' => __('Edit profile')))
 $list = array();
 foreach ($categories as $key => $value)
 {
-  if (count($value))
-  {
-    $list[] = link_to(__($categoryCaptions[$key]), 'member/config?category='.$key);
-  }
+  $list[] = link_to(__($categoryCaptions[$key]), 'member/config?category='.$key);
 }
 $list[] = link_to(__('Setting easy login'), 'member/configUID');
 $list[] = link_to(__('Delete your %1% account', array('%1%' => $op_config['sns_name'])), 'member/delete');

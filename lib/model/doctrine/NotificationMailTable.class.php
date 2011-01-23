@@ -106,4 +106,53 @@ class NotificationMailTable extends Doctrine_Table
 
     return $this->configs;
   }
+
+  public function isEnabledMemberConfig($member = null)
+  {
+    if (null === $member)
+    {
+      $member = sfContext::getInstance()->getUser()->getMember();
+    }
+
+    $configs = $this->getConfigs();
+
+    $apps = array();
+    if (opConfig::get('enable_pc') && isset($configs['pc']) &&
+      $member->getConfig('pc_address'))
+    {
+      $apps[] = 'pc';
+    }
+    if (opConfig::get('enable_mobile') && isset($configs['mobile']) &&
+      $member->getConfig('mobile_address'))
+    {
+      $apps[] = 'mobile';
+    }
+
+
+    foreach ($apps as $app)
+    {
+      if (isset($configs[$app]['dailyNews']))
+      {
+        $dailyNewsNotification = $this->findOneByName($app.'_dailyNews');
+        if (!$dailyNewsNotification || $dailyNewsNotification->getIsEnabled())
+        {
+          return true;
+        }
+      }
+
+      foreach ($configs[$app] as $name => $value)
+      {
+        if (isset($value['member_configurable']) && $value['member_configurable'])
+        {
+          $notification = $this->findOneByName($app.'_'.$name);
+          if (!$notification || $notification->getIsEnabled())
+          {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
 }

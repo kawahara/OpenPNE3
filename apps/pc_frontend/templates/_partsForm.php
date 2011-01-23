@@ -33,12 +33,13 @@ $options->setDefault('url', $sf_request->getCurrentUri());
 <?php op_include_parts('alertBox', 'FormGlobalError', array('body' => get_slot('form_global_error'))) ?>
 <?php endif; ?>
 
-<?php $hasRequiredField = false ?>
+<?php
+$hasRequiredField = false;
+$isFirstRow       = true;
+$isTableTag       = false;
+?>
 
 <?php slot('form_table') ?>
-<table>
-<?php include_customizes($id, 'firstRow') ?>
-<?php echo $options->getRaw('firstRow') ?>
 
 <?php foreach ($forms as $form): ?>
 <?php foreach ($form as $name => $field): ?>
@@ -48,6 +49,30 @@ $attributes = array();
 $widget     = $field->getWidget();
 $validator  = $form->getValidator($name);
 $labelSuffix = '';
+
+if ($widget instanceof opWidgetFormSeparator)
+{
+  if ($isTableTag)
+  {
+    echo '</table>';
+  }
+
+  $isTableTag = false;
+
+  echo '<h4>'.$field->renderLabelName().'</h4>';
+  continue;
+}
+elseif (!$isTableTag)
+{
+  echo '<table>';
+  if ($isFirstRow)
+  {
+    include_customizes($id, 'firstRow');
+    echo $options->getRaw('firstRow');
+    $isFirstRow = false;
+  }
+  $isTableTag = true;
+}
 
 if ($widget instanceof opWidgetFormProfile)
 {
@@ -85,7 +110,7 @@ elseif ($widget instanceof sfWidgetFormSelectCheckbox)
   $attributes = array('class' => 'input_checkbox');
 }
 
-if ($options['mark_required_field'] 
+if ($options['mark_required_field']
   && !($validator instanceof sfValidatorPass)
   && !($validator instanceof sfValidatorSchema)
   && $validator->getOption('required'))
@@ -97,9 +122,15 @@ if ($options['mark_required_field']
 <?php echo $field->renderRow($attributes, $field->renderLabelName().$labelSuffix) ?>
 <?php endforeach; ?>
 <?php endforeach; ?>
-<?php echo $options->getRaw('lastRow') ?>
-<?php include_customizes($id, 'lastRow') ?>
+<?php if ($isTableTag ): ?>
 </table>
+<?php else: ?>
+<?php if ($lastRow = $options->getRaw('lastRow').get_customizes($id, 'lastRow')): ?>
+<table>
+<?php echo $lastRow ?>
+</table>
+<?php endif; ?>
+<?php endif; ?>
 <?php end_slot(); ?>
 
 <?php if ($hasRequiredField): ?>

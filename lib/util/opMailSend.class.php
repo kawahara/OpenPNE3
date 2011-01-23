@@ -169,7 +169,8 @@ class opMailSend
     ), $options);
 
     // to pc
-    if ($options['is_send_pc'] && ($address = $member->getConfig('pc_address')) &&
+    if (opConfig::get('enable_pc') && $options['is_send_pc'] &&
+      ($address = $member->getConfig('pc_address')) &&
       (
         !isset($mailConfigs['pc'][$template]['member_configurable']) ||
         !$mailConfigs['pc'][$template]['member_configurable'] ||
@@ -182,7 +183,8 @@ class opMailSend
     }
 
     // to mobile
-    if ($options['is_send_mobile'] && ($address = $member->getConfig('mobile_address')) &&
+    if (opConfig::get('enable_mobile') && $options['is_send_mobile'] &&
+      ($address = $member->getConfig('mobile_address')) &&
       (
         !isset($mailConfigs['mobile'][$template]['member_configurable']) ||
         !$mailConfigs['mobile'][$template]['member_configurable'] ||

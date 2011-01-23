@@ -157,6 +157,11 @@ class MemberConfigForm extends BaseForm
         continue;
       }
 
+      if (strrpos($key, '_separator'))
+      {
+        continue;
+      }
+
       $this->saveConfig($key, $value);
     }
 

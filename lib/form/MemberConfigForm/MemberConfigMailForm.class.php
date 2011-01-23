@@ -19,54 +19,78 @@ class MemberConfigMailForm extends MemberConfigForm
 {
   protected $category = 'mail';
 
-  public function __construct(Member $member = null, $options = array(), $CSRFSecret = null)
-  {
-    parent::__construct($member, $options, $CSRFSecret);
-
-    $count = count(opConfig::get('daily_news_day'));
-
-    $i18n = sfContext::getInstance()->getI18N();
-    $translated = $i18n->__('[1]Send once a week (%2%)|[2]Send twice a week (%2%)|(2,+Inf]Send %1% times a week (%2%)', array(
-      '%1%' => $count,
-      '%2%' => implode(',', $this->generateDayList()))
-    );
-
-    $choice = new sfChoiceFormat();
-    $retval = $choice->format($translated, $count);
-
-    $options = $this->widgetSchema['daily_news']->getOptions();
-    $options['choices'][1] = $retval;
-    $this->widgetSchema['daily_news']->setOptions($options);
-  }
-
   public function configure()
   {
     $configs = Doctrine::getTable('NotificationMail')->getConfigs();
-    $app = 'mobile_frontend' == sfConfig::get('sf_app') ? 'mobile' : 'pc';
-    if (!isset($configs[$app]))
+
+    $apps = array();
+    if (opConfig::get('enable_pc') && isset($configs['pc']))
     {
-      return;
+      $apps[] = 'pc';
+    }
+    if (opConfig::get('enable_mobile') && isset($configs['mobile']))
+    {
+      $apps[] = 'mobile';
     }
 
-    $choices = array(
-      1 => '受信する',
-      0 => '受信しない'
-    );
-
-    foreach ($configs[$app] as $key => $value)
+    foreach ($apps as $app)
     {
-      if (isset($value['member_configurable']) && $value['member_configurable'])
+      $this->setWidget($app.'_separator', new opWidgetFormSeparator());
+      $this->setValidator($app.'_separator', new sfValidatorPass());
+      $this->widgetSchema->setLabel($app.'_separator', $app);
+
+      if (isset($configs[$app]['dailyNews']))
       {
-        $notification = Doctrine::getTable('NotificationMail')->findOneByName($app.'_'.$key);
+        $name = $app.'_dailyNews';
+        $notification = Doctrine::getTable('NotificationMail')->findOneByName($app.'_daily_news');
+
         if (!$notification || $notification->getIsEnabled())
         {
-          $name  = 'is_send_'.$app.'_'.$key.'_mail';
+          $count = count(opConfig::get('daily_news_day'));
+
+          $i18n = sfContext::getInstance()->getI18N();
+          $translated = $i18n->__('[1]Send once a week (%2%)|[2]Send twice a week (%2%)|(2,+Inf]Send %1% times a week (%2%)', array(
+            '%1%' => $count,
+            '%2%' => implode(',', $this->generateDayList()))
+          );
+
+          $choice = new sfChoiceFormat();
+          $retval = $choice->format($translated, $count);
+
+          $choices = array(
+            2 => 'Send Everyday',
+            1 => $retval,
+            0 => "Don't Send",
+          );
 
           $this->setWidget($name, new sfWidgetFormChoice(array('choices' => $choices, 'expanded' => true)));
-          $this->setValidator($name, new sfValidatorChoice(array('choices' => array_keys($choices), 'required' => true)));
-          $this->widgetSchema->setLabel($name, $value['caption']);
+          $this->setValidator($name, new sfValidatorChoice(array('choices' => array_keys($choices))));
+          $this->widgetSchema->setLabel($name, 'Daily News');
 
-          $this->setDefault($name, $this->member->getConfig($name, 1));
+          $this->setDefault($name, $this->member->getConfig($name, 2));
+        }
+      }
+
+      $choices = array(
+        1 => '受信する',
+        0 => '受信しない'
+      );
+
+      foreach ($configs[$app] as $key => $value)
+      {
+        if (isset($value['member_configurable']) && $value['member_configurable'])
+        {
+          $notification = Doctrine::getTable('NotificationMail')->findOneByName($app.'_'.$key);
+          if (!$notification || $notification->getIsEnabled())
+          {
+            $name  = 'is_send_'.$app.'_'.$key.'_mail';
+
+            $this->setWidget($name, new sfWidgetFormChoice(array('choices' => $choices, 'expanded' => true)));
+            $this->setValidator($name, new sfValidatorChoice(array('choices' => array_keys($choices), 'required' => true)));
+            $this->widgetSchema->setLabel($name, $value['caption']);
+
+            $this->setDefault($name, $this->member->getConfig($name, 1));
+          }
         }
       }
     }

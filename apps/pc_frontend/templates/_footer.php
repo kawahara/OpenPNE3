@@ -7,4 +7,5 @@
 <?php else: ?>
 <?php echo Doctrine::getTable('SnsConfig')->get('footer_before', $snsConfigSettings['footer_before']['Default']); ?>
 <?php endif; ?>
+HelloHello
 </p>

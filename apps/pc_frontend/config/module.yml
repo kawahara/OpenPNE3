@@ -1,2 +1,3 @@
 default:
   view_class: op
+  partial_view_class: sfSmartphone

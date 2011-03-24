@@ -40,6 +40,7 @@ function op_include_parts($name, $id, $options = array())
     return;
   }
 
+  require_once(sfContext::getInstance()->getConfigCache()->checkConfig('modules/global/config/module.yml'));
   include_partial('global/partsLayout', $params);
 
   $shorts = $params['options']->getShortRequiredOptions();
@@ -211,6 +212,8 @@ function include_login_parts($id, $form, $link_to)
     'form' => $form,
     'link_to' => url_for(sprintf($link_to.'?%s=%s', opAuthForm::AUTH_MODE_FIELD_NAME, $form->getAuthMode())),
   );
+
+  require_once(sfContext::getInstance()->getConfigCache()->checkConfig('modules/global/config/module.yml'));
   include_partial('global/partsLogin', $params);
 }
 

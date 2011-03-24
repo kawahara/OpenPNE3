@@ -1,2 +1,5 @@
-default:
+_smartphone:
+  stylesheets:    [/opSkinBasicPlugin/css/smartphone.css]
+
+_another:
   stylesheets:    [/opSkinBasicPlugin/css/main.css]

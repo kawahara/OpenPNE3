@@ -62,7 +62,9 @@ class memberActions extends opMemberAction
     $this->gadgetConfig = sfConfig::get('op_login_gadget_list');
     $gadgets = Doctrine::getTable('Gadget')->retrieveGadgetsByTypesName('login');
     $layout = Doctrine::getTable('SnsConfig')->get('login_layout', 'layoutA');
-    $this->setLayout($layout);
+
+    if (!sfSmartphoneViewToolKit::isSmartphone())
+      $this->setLayout($layout);
 
     switch($layout)
     {

@@ -22,5 +22,14 @@ class pc_frontendConfiguration extends opApplicationConfiguration
     parent::initialize();
 
     sfWidgetFormSchema::setDefaultFormFormatterName('pc');
+
+    $this->dispatcher->connect('sf_smartphone_view.post_configure_smartphone', array($this, 'postConfigureSmartphone'));
+  }
+
+  public function postConfigureSmartphone(sfEvent $event)
+  {
+    $parameters = $event->getParameters();
+    if (isset($parameters['is_smartphone']) && $parameters['is_smartphone'])
+      sfWidgetFormSchema::setDefaultFormFormatterName('smartphone');
   }
 }

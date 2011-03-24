@@ -16,7 +16,7 @@
  * @author     Kousuke Ebihara <ebihara@php.net>
  */
 
-class opView extends sfPHPView
+class opView extends sfSmartphoneView
 {
   public $customizeConditions = array(
     'category' => array(

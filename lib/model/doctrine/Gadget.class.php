@@ -49,7 +49,10 @@ class Gadget extends BaseGadget implements opAccessControlRecordInterface
       return false;
     }
 
-    return $list[$this->name]['component'][0];
+    $moduleName = $list[$this->name]['component'][0];
+    require_once(sfContext::getInstance()->getConfigCache()->checkConfig('modules/'.$moduleName.'/config/module.yml'));
+
+    return $moduleName;
   }
 
   public function getComponentAction()

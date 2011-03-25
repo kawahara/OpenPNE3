@@ -24,6 +24,7 @@ class sfSmartphoneViewToolKit
       '/Android/'     => 'android',
     ),
     $isSm = null,
+    $isUseSmTemplate = null,
     $suffix = null;
 
   static protected function isExistsTemplateFile($view, $context, $moduleName, $actionName, $viewName, $suffix)
@@ -95,28 +96,44 @@ class sfSmartphoneViewToolKit
   {
     if (!self::isSmartphone())
     {
-      return '';
+      $suffix = '';
     }
-
-    if (!$checkFile
+    elseif (!$checkFile
       || self::isExistsTemplateFile($view, $context, $moduleName, $actionName, $viewName, self::$suffix)
     )
     {
-      return self::$suffix;
+      $suffix = self::$suffix;
     }
-
-    if (!$checkFile
+    elseif (!$checkFile
         || self::isExistsTemplateFile($view, $context, $moduleName, $actionName, $viewName, self::$generalSmartphoneSuffix)
     )
     {
-      return self::$generalSmartphoneSuffix;
+      $suffix = self::$generalSmartphoneSuffix;
+    }
+    else
+    {
+      $suffix = '';
     }
 
-    return '';
+    if ($checkFile && null === self::$isUseSmTemplate)
+    {
+      self::$isUseSmTemplate = !empty($suffix);
+
+      $event = new sfEvent(null, 'sf_smartphone_view.post_decide_smartphone', array(
+        'is_use_smartphone_template' => self::$isUseSmTemplate,
+        'suffix' => self::$suffix
+      ));
+      $context->getEventDispatcher()->notify($event);
+    }
+
+    return $suffix;
   }
 
   static public function getViewNameFromUA($view, $context, $moduleName, $actionName, $viewName)
   {
-    return $viewName.sfInflector::camelize(self::getViewNameSuffixFromUA($view, $context, $moduleName, $actionName, $viewName));
+    if (null === self::$isUseSmTemplate || self::$isUseSmTemplate)
+      return $viewName.sfInflector::camelize(self::getViewNameSuffixFromUA($view, $context, $moduleName, $actionName, $viewName));
+
+    return $viewName;
   }
 }

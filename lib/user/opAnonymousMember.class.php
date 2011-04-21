@@ -42,7 +42,7 @@ class opAnonymousMember extends Member
     return array();
   }
 
-  public function getProfile($profileName)
+  public function getProfile($profileName, $viewableCheck = false, $myMemberId = null)
   {
     return null;
   }
@@ -52,7 +52,7 @@ class opAnonymousMember extends Member
     return false;
   }
 
-  public function getConfig($configName)
+  public function getConfig($configName, $default = null)
   {
     return null;
   }
@@ -146,12 +146,12 @@ class opAnonymousMember extends Member
     return 'everyone';
   }
 
-  public function save()
+  public function save(Doctrine_Connection $conn = null)
   {
     return false;
   }
 
-  public function delete()
+  public function delete(Doctrine_Connection $conn = null)
   {
     return false;
   }

@@ -20,9 +20,35 @@ class Member extends BaseMember implements opAccessControlRecordInterface
     return Doctrine::getTable('MemberProfile')->getProfileListByMemberId($this->getId());
   }
 
-  public function getProfile($profileName)
+  public function getProfile($profileName, $viewableCheck = false, $myMemberId = null)
   {
     $profile = Doctrine::getTable('MemberProfile')->retrieveByMemberIdAndProfileName($this->getId(), $profileName);
+    if (!$profile)
+    {
+      return null;
+    }
+
+    if ($viewableCheck)
+    {
+      if ($myMemberId)
+      {
+        $member = Doctrine::getTable('Member')->find($myMemberId);
+      }
+      else
+      {
+        $member = sfContext::getInstance()->getUser()->getMember();
+      }
+
+      if (!$member)
+      {
+        return null;
+      }
+
+      if (!$profile->isAllowed($member, 'view'))
+      {
+        return null;
+      }
+    }
 
     return $profile;
   }
@@ -340,9 +366,9 @@ class Member extends BaseMember implements opAccessControlRecordInterface
 
   public function countJoinCommunity()
   {
-    static $cache = false;
+    static $cache = null;
 
-    if ($cache === false)
+    if (is_null($cache))
     {
       $cache = Doctrine::getTable('CommunityMember')->createQuery()
         ->where('member_id = ?', $this->getId())
